@@ -1,6 +1,0 @@
-{
-  "crons": [
-    { "path": "/api/admin/generate", "schedule": "0 0 * * *" }
-  ]
-}
-

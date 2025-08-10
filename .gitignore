@@ -7,4 +7,10 @@ node_modules
 supabase/.temp
 dist
 *.log
+Thumbs.db
+.DS_Store
+.vscode
+.idea
+coverage
+*.local
 
