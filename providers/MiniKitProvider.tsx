@@ -26,7 +26,6 @@ export function MiniKitContextProvider({ children }: { children: ReactNode }) {
         <OnchainKitProvider 
           apiKey={apiKey} 
           chain={base}
-          projectName={process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME || 'basedquiz'}
         >
           <MiniKitProvider>
             {children}
