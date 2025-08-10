@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!url || !anon) return NextResponse.json({ error: 'env missing' }, { status: 500 })
   const supabase = createClient(url, anon)
 
-  const idNum = Number(params.id)
+  const idNum = Number(id)
   if (!idNum) return NextResponse.json({ error: 'bad id' }, { status: 400 })
 
   const { data, error } = await supabase
