@@ -3,14 +3,19 @@
 import Link from 'next/link'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { useEffect } from 'react'
+import { sdk } from '@farcaster/miniapp-sdk'
 
 export default function HomePage() {
   const { setFrameReady, isFrameReady } = useMiniKit()
 
   useEffect(() => {
-    if (!isFrameReady) {
-      setFrameReady()
-    }
+    ;(async () => {
+      try {
+        await sdk.actions.ready()
+      } catch {}
+    })()
+
+    if (!isFrameReady) setFrameReady()
   }, [isFrameReady, setFrameReady])
   
   return (

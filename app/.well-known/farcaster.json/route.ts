@@ -8,13 +8,12 @@ export async function GET() {
       signature: process.env.FARCASTER_SIGNATURE || '',
     },
     frame: {
-      version: '0.0.1',
+      version: '1',
       name: process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME || 'Base Trivia',
       iconUrl: `${process.env.NEXT_PUBLIC_URL || ''}/favicon.ico`,
       homeUrl: process.env.NEXT_PUBLIC_URL || 'http://localhost:3000',
-      webhookUrl: undefined,
       splashImageUrl: undefined,
-      splashBackgroundColor: undefined,
+      splashBackgroundColor: '#000000',
     },
   }
   return NextResponse.json(manifest)
