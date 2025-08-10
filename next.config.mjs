@@ -1,5 +1,15 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/.well-known/farcaster.json',
+        destination: 'https://api.farcaster.xyz/miniapps/hosted-manifest/019895eb-9e4d-872c-d51a-2badf7a1b1d5',
+        permanent: false, // 307 temporary
+      },
+    ]
+  },
+};
 
 export default nextConfig;
 
