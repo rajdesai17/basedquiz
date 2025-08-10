@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
+import { useAccount } from 'wagmi'
 
 type Question = {
   id: number
@@ -11,7 +12,8 @@ type Question = {
 }
 
 export default function PlayPage() {
-  const { address } = useMiniKit() as any
+  // Use wagmi for wallet connection status per OnchainKit docs
+  const { address, isConnected } = useAccount()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [roundId, setRoundId] = useState<number | null>(null)
@@ -98,7 +100,7 @@ export default function PlayPage() {
     }
   }
 
-  if (!address)
+  if (!isConnected)
     return (
       <main className="mx-auto max-w-2xl p-6">
         <div className="card">
