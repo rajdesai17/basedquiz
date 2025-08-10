@@ -1,0 +1,10 @@
+node_modules
+.next
+.turbo
+.vercel
+.env*
+!.env.example
+supabase/.temp
+dist
+*.log
+
