@@ -28,13 +28,20 @@ export async function GET(req: NextRequest) {
 
   const { data: scores, error } = await supabase
     .from('scores')
-    .select('wallet_address, correct_count, time_ms')
+    .select('wallet_address, correct_count, time_ms, total')
     .eq('round_id', roundId)
-    .order('correct_count', { ascending: false })
-    .order('time_ms', { ascending: true })
-    .limit(50)
+    .limit(200)
 
   if (error) return NextResponse.json([], { status: 200 })
-  return NextResponse.json(scores ?? [])
+
+  const ranked = (scores ?? []).sort((a: any, b: any) => {
+    const aPerfect = a.correct_count === a.total ? 1 : 0
+    const bPerfect = b.correct_count === b.total ? 1 : 0
+    if (aPerfect !== bPerfect) return bPerfect - aPerfect
+    if (a.correct_count !== b.correct_count) return b.correct_count - a.correct_count
+    return a.time_ms - b.time_ms
+  }).slice(0, 50)
+
+  return NextResponse.json(ranked)
 }
 
