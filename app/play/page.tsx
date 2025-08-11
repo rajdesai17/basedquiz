@@ -113,8 +113,8 @@ export default function PlayPage() {
   if (error) return <main className="p-6 text-red-400">{error}</main>
 
   return (
-    <main className="mx-auto max-w-2xl p-6">
-      <div className="mb-4 flex items-center justify-between text-sm text-neutral-400">
+    <main className="container-page py-6">
+      <div className="mb-4 flex items-center justify-between text-xs sm:text-sm text-neutral-400">
         <div>Time left: {countdown}s</div>
         <div>{questions.length} questions</div>
       </div>
@@ -123,11 +123,11 @@ export default function PlayPage() {
           e.preventDefault()
           void onSubmit()
         }}
-        className="space-y-6"
+        className="space-y-4 sm:space-y-6"
       >
         {questions.map((q, idx) => (
           <div key={q.id} className="card">
-            <div className="font-medium">Q{idx + 1}. {q.question_text}</div>
+            <div className="font-medium text-base sm:text-lg">Q{idx + 1}. {q.question_text}</div>
             <div className="mt-3 grid gap-2">
               {q.options.map((opt, oi) => (
                 <label key={oi} className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export default function PlayPage() {
         ))}
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary w-full sm:w-auto"
           disabled={!answeredAll || submitted}
         >
           {submitted ? 'Submitted' : 'Submit'}

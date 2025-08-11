@@ -16,11 +16,11 @@ async function getLeaders(): Promise<Leader[]> {
 export default async function LeaderboardPage() {
   const leaders = await getLeaders()
   return (
-    <main className="mx-auto max-w-2xl p-6">
-      <h1 className="text-2xl font-semibold">Leaderboard (Today)</h1>
+    <main className="container-page py-6">
+      <h1 className="text-2xl sm:text-3xl font-semibold">Leaderboard (Today)</h1>
       <p className="mt-2 text-neutral-400 text-sm">Ranking uses wallet address only. You must be signed in with your wallet to play.</p>
       <div className="mt-4 overflow-hidden rounded-xl border border-neutral-800">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-xs sm:text-sm">
           <thead className="bg-neutral-900/60 text-neutral-300">
             <tr>
               <th className="px-4 py-2">#</th>
