@@ -9,7 +9,14 @@
     "start": "next start -p 3000",
     "lint": "echo 'No lint configured'",
     "contracts:compile": "hardhat compile",
-    "contracts:deploy:base": "hardhat run scripts/deploy.js --network base_mainnet"
+    "contracts:deploy:base": "hardhat run scripts/deploy.cjs --network base_mainnet",
+    "vault:deploy:base": "hardhat run scripts/deployVault.cjs --network base_mainnet",
+    "vault:fund:base": "hardhat run scripts/fundVault.cjs --network base_mainnet",
+    "token:info:base": "hardhat run scripts/tokenInfo.cjs --network base_mainnet",
+    "token:balance:base": "hardhat run scripts/checkBalance.cjs --network base_mainnet",
+    "payout:single:base": "hardhat run scripts/payout.cjs --network base_mainnet",
+    "payout:batch:base": "hardhat run scripts/payoutBatch.cjs --network base_mainnet",
+    "vault:set-manager:base": "hardhat run scripts/setManager.cjs --network base_mainnet"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.19",

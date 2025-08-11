@@ -5,9 +5,9 @@ type Leader = {
 }
 
 async function getLeaders(): Promise<Leader[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_URL ?? ''}/api/leaderboard`, {
-    cache: 'no-store',
-    next: { revalidate: 0 },
+  const res = await fetch(`/api/leaderboard`, {
+    cache: 'force-cache',
+    next: { revalidate: 30 },
   })
   if (!res.ok) return []
   return res.json()
