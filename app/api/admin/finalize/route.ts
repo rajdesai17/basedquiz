@@ -49,13 +49,34 @@ export async function POST(req: NextRequest) {
   }).slice(0, topN)
 
   if (freeDay) {
-    // Free day: produce BQ token payout records (no signature)
+    // Free day: create signed token claims for TokenAirdrop; users claim and pay gas
     const perWinner = process.env.FREE_DAY_TOKENS_PER_WINNER || '10'
-    const amount = perWinner
-    const inserts = ranked.map((r) => ({ round_id: roundId, wallet_address: r.wallet_address, amount_tokens: amount }))
-    const { error: insErr } = await supabase.from('payouts').insert(inserts)
+    const signerPk = process.env.OWNER_PK
+    if (!signerPk) return NextResponse.json({ error: 'signer env' }, { status: 500 })
+    const account = privateKeyToAccount(('0x' + signerPk.replace(/^0x/, '')) as `0x${string}`)
+    const chainId = 8453n
+    const airdropAddr = (process.env.AIRDROP_ADDRESS || '').toString()
+    if (!airdropAddr) return NextResponse.json({ error: 'airdrop addr missing' }, { status: 500 })
+
+    const decimals = BigInt(18)
+    const amountWei = BigInt(Number(perWinner)) * 10n ** decimals
+
+    const rows: { round_id: number; wallet_address: string; amount_tokens: string; nonce: string; signature: string }[] = []
+    for (const r of ranked) {
+      const wallet = r.wallet_address as `0x${string}`
+      const nonceHex = ('0x' + randomBytes(32).toString('hex')) as `0x${string}`
+      const packed = encodePacked(
+        ['uint256','address','uint256','address','uint256','bytes32'],
+        [chainId, airdropAddr as `0x${string}`, BigInt(roundId), wallet, amountWei, nonceHex]
+      )
+      const digest = keccak256(packed)
+      const signature = await account.signMessage({ message: { raw: toBytes(digest) } })
+      rows.push({ round_id: roundId, wallet_address: wallet, amount_tokens: amountWei.toString(), nonce: nonceHex, signature })
+    }
+
+    const { error: insErr } = await supabase.from('token_claims').insert(rows)
     if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 })
-    return NextResponse.json({ ok: true, winners: ranked.length, perWinner: amount })
+    return NextResponse.json({ ok: true, winners: ranked.length, perWinner: perWinner })
   }
 
   // Paid day: create signed ETH claims using BaseRallyPool domain separation

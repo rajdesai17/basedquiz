@@ -21,6 +21,7 @@ export default function PlayPage() {
   const [answers, setAnswers] = useState<number[]>([])
   const [startMs, setStartMs] = useState<number | null>(null)
   const [submitted, setSubmitted] = useState(false)
+  const [claimInfo, setClaimInfo] = useState<{ token?: any; eth?: any } | null>(null)
   const totalSeconds = 60
 
   useEffect(() => {
@@ -94,7 +95,12 @@ export default function PlayPage() {
         }),
       })
       if (!res.ok) throw new Error('Failed to submit score')
-      // noop
+      // Fetch claim availability (token and/or eth)
+      const [tokenClaim, ethClaim] = await Promise.all([
+        fetch(`/api/claim/token?roundId=${roundId}&wallet=${address}`).then((r) => r.ok ? r.json() : null).catch(() => null),
+        fetch(`/api/claim?roundId=${roundId}&wallet=${address}`).then((r) => r.ok ? r.json() : null).catch(() => null),
+      ])
+      setClaimInfo({ token: tokenClaim, eth: ethClaim })
     } catch (e) {
       // ignore for MVP UI
     }
@@ -158,6 +164,30 @@ export default function PlayPage() {
           {submitted ? 'Submitted' : 'Submit'}
         </button>
       </form>
+
+      {submitted && (
+        <div className="mt-6 card">
+          <h3 className="text-lg font-semibold">Come back tomorrow</h3>
+          <p className="text-neutral-300 mt-2">You can play once per day. Your submission is recorded.</p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              className="btn btn-ghost"
+              disabled={!claimInfo?.token}
+              onClick={() => alert('Claim BQ: open Claim modal in production')}
+            >
+              Claim BQ
+            </button>
+            <button
+              className="btn btn-ghost"
+              disabled={!claimInfo?.eth}
+              onClick={() => alert('Claim ETH: open Claim modal in production')}
+            >
+              Claim ETH
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
