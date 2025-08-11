@@ -4,12 +4,14 @@ import Link from 'next/link'
 import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { useEffect, useMemo, useState } from 'react'
 import { sdk } from '@farcaster/miniapp-sdk'
-import { useAccount } from 'wagmi'
+import { useAccount, useWalletClient } from 'wagmi'
+import { encodeFunctionData } from 'viem'
 import { ConnectWallet } from '@coinbase/onchainkit/wallet'
 
 export default function HomePage() {
   const { setFrameReady, isFrameReady } = useMiniKit()
   const { isConnected, address } = useAccount()
+  const { data: walletClient } = useWalletClient()
   const [loading, setLoading] = useState(false)
   const [rewards, setRewards] = useState<{ token?: any; eth?: any } | null>(null)
 
@@ -66,13 +68,28 @@ export default function HomePage() {
                   disabled={loading || !rewards?.token}
                   onClick={async () => {
                     try {
-                      const tokenAddr = process.env.NEXT_PUBLIC_BQ_TOKEN_ADDRESS as string
+                      if (!walletClient) return alert('Connect wallet to claim')
                       const airdrop = process.env.NEXT_PUBLIC_AIRDROP_ADDRESS as string
                       if (!rewards?.token || !airdrop) return
                       const { amount, nonce, signature, roundId } = rewards.token
-                      // Leave the actual tx to Play page or a wallet modal flow
-                      alert('You have a BQ reward ready to claim in-app. Open Play or Claim modal to proceed.')
-                    } catch {}
+                      const abi = [{
+                        type: 'function',
+                        name: 'claim',
+                        stateMutability: 'nonpayable',
+                        inputs: [
+                          { name: 'roundId', type: 'uint256' },
+                          { name: 'amount', type: 'uint256' },
+                          { name: 'nonce', type: 'bytes32' },
+                          { name: 'signature', type: 'bytes' },
+                        ],
+                        outputs: [],
+                      }]
+                      const data = encodeFunctionData({ abi: abi as any, functionName: 'claim', args: [BigInt(roundId), BigInt(amount), nonce as `0x${string}`, signature as `0x${string}`] })
+                      const hash = await walletClient.sendTransaction({ to: airdrop as `0x${string}`, data })
+                      alert(`BQ claim sent: ${hash}`)
+                    } catch (e: any) {
+                      alert(e?.message || 'Claim failed')
+                    }
                   }}
                 >
                   Claim BQ
@@ -80,7 +97,31 @@ export default function HomePage() {
                 <button
                   className="btn btn-ghost"
                   disabled={loading || !rewards?.eth}
-                  onClick={() => alert('ETH claim ready. Open Claim modal to proceed.')}
+                  onClick={async () => {
+                    try {
+                      if (!walletClient) return alert('Connect wallet to claim')
+                      const pool = process.env.NEXT_PUBLIC_POOL_ADDRESS as string
+                      if (!rewards?.eth || !pool) return
+                      const { amountWei, nonce, signature, roundId } = rewards.eth
+                      const abi = [{
+                        type: 'function',
+                        name: 'claim',
+                        stateMutability: 'nonpayable',
+                        inputs: [
+                          { name: 'roundId', type: 'uint256' },
+                          { name: 'amount', type: 'uint256' },
+                          { name: 'nonce', type: 'bytes32' },
+                          { name: 'signature', type: 'bytes' },
+                        ],
+                        outputs: [],
+                      }]
+                      const data = encodeFunctionData({ abi: abi as any, functionName: 'claim', args: [BigInt(roundId), BigInt(amountWei), nonce as `0x${string}`, signature as `0x${string}`] })
+                      const hash = await walletClient.sendTransaction({ to: pool as `0x${string}`, data })
+                      alert(`ETH claim sent: ${hash}`)
+                    } catch (e: any) {
+                      alert(e?.message || 'Claim failed')
+                    }
+                  }}
                 >
                   Claim ETH
                 </button>
