@@ -1,3 +1,7 @@
+export const dynamic = 'force-dynamic'
+
+import { headers } from 'next/headers'
+
 type Leader = {
   wallet_address: string
   correct_count: number
@@ -5,10 +9,11 @@ type Leader = {
 }
 
 async function getLeaders(): Promise<Leader[]> {
-  const res = await fetch(`/api/leaderboard`, {
-    cache: 'force-cache',
-    next: { revalidate: 30 },
-  })
+  const h = headers()
+  const host = h.get('x-forwarded-host') ?? h.get('host')
+  const proto = h.get('x-forwarded-proto') ?? 'https'
+  const baseUrl = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_URL || 'http://localhost:3000')
+  const res = await fetch(`${baseUrl}/api/leaderboard`, { cache: 'no-store' })
   if (!res.ok) return []
   return res.json()
 }
