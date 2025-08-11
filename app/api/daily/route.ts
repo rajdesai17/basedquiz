@@ -12,7 +12,7 @@ export async function GET() {
   if (!url || !anon) return NextResponse.json({ error: 'Supabase env missing' }, { status: 500 })
   const supabase = createClient(url, anon)
 
-  // Find today's round
+  // Ensure there's exactly one round per date
   let { data: roundData, error: roundErr } = await supabase
     .from('daily_rounds')
     .select('*')
@@ -22,8 +22,8 @@ export async function GET() {
 
   if (roundErr) return NextResponse.json({ error: roundErr.message }, { status: 500 })
 
-  // In dev, if missing, auto-create empty round so UI loads
-  if (!roundData && process.env.NODE_ENV !== 'production') {
+  // If missing, auto-create an empty round (works in prod to guarantee availability)
+  if (!roundData) {
     const { data, error } = await supabase
       .from('daily_rounds')
       .insert({ date: today })

@@ -101,3 +101,8 @@ Return strict JSON with this shape:
   return NextResponse.json({ ok: true, count: rows.length })
 }
 
+// Allow GET for Vercel Cron and manual browser trigger
+export async function GET() {
+  return POST()
+}
+
