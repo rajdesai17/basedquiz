@@ -27,7 +27,7 @@ export function MiniKitContextProvider({ children }: { children: ReactNode }) {
           apiKey={apiKey} 
           chain={base}
         >
-          <MiniKitProvider>
+          <MiniKitProvider apiKey={apiKey} chain={base}>
             {children}
           </MiniKitProvider>
         </OnchainKitProvider>
